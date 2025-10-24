@@ -1,0 +1,4 @@
+[project]
+config_version=5
+name="Loncat Lonta Zombie"
+application/run/main_scene="res://scenes/Main.tscn"
