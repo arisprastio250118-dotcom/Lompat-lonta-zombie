@@ -1,0 +1,90 @@
+petualangan-hutan/
+├── index.html <!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petualangan Pixel Hutan</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" width="512" height="288"></canvas>
+<div id="hud">
+  <span id="hp">Nyawa: 5</span> | <span id="score">Skor: 0</span>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
+├── style.css body {
+  margin: 0;
+  background: #0b1622;
+  color: white;
+  font-family: monospace;
+  overflow: hidden;
+  text-align: center;
+}
+canvas {
+  display: block;
+  margin: auto;
+  background: #091018;
+  image-rendering: pixelated;
+  border: 4px solid #071428;
+}
+#hud {
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+}
+└── script.js const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let player = {x:50, y:220, w:16, h:16, vy:0, speed:150, jump:350, hp:5};
+let obstacles = [];
+let enemies = [];
+let coins = [];
+let score = 0;
+let gravity = 900;
+let gameOver = false;
+let keys = {};
+let lastTime = 0;
+
+// Input
+window.addEventListener("keydown", e => { keys[e.key] = true; });
+window.addEventListener("keyup", e => { keys[e.key] = false; });
+
+// Spawn functions
+function rand(a,b){return Math.random()*(b-a)+a;}
+function spawnObstacle(){obstacles.push({x:canvas.width, y:240, w:16, h:16});}
+function spawnCoin(){coins.push({x:canvas.width+rand(50,150), y:rand(150,220), r:6});}
+function spawnEnemy(){enemies.push({x:canvas.width, y:220, w:16, h:16, dir:-1});}
+
+// Reset
+function reset(){
+  player.y=220; player.vy=0; player.hp=5; score=0;
+  obstacles=[]; coins=[]; enemies=[]; gameOver=false;
+  updateHUD();
+}
+
+function updateHUD(){
+  document.getElementById("hp").textContent = "Nyawa: "+player.hp;
+  document.getElementById("score").textContent = "Skor: "+score;
+}
+
+// Game Loop
+function update(dt){
+  if(gameOver) return;
+
+  // Player movement
+  if(keys['ArrowLeft']) player.x -= player.speed*dt;
+  if(keys['ArrowRight']) player.x += player.speed*dt;
+  if((keys['ArrowUp'] || keys[' ']) && player.y===220) player.vy=-player.jump;
+
+  player.vy += gravity*dt;
+  player.y += player.vy*dt;
+  if(player.y>220){player.y=220; player.vy=0;}
+
+  // Obstacles
+  for(let i=obstacles.length-1;i>=0;i--){
+    
